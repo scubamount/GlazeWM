@@ -13,6 +13,7 @@ namespace LarsWM.Domain.Windows
     public Guid Id = Guid.NewGuid();
     public IntPtr Hwnd { get; }
     public bool IsHidden { get; set; } = false;
+    public WindowMode Mode { get; set; } = WindowMode.TILING;
 
     /// <summary>
     /// Whether adjustments need to be made because of DPI (eg. when moving between monitors).
