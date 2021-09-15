@@ -24,21 +24,20 @@ namespace LarsWM.Domain.Containers.CommandHandlers
 
     public CommandResponse Handle(RedrawContainersCommand command)
     {
-      var containersToRedraw = _containerService.SplitContainersToRedraw;
-
       // Get windows that should be redrawn.
-      var windowsToRedraw = containersToRedraw
+      var windowsToRedraw = _containerService.SplitContainersToRedraw
         .SelectMany(container => container.Flatten())
         .OfType<Window>()
+        .Where(window => window.Mode == WindowMode.TILING)
         .Distinct()
         .ToList();
 
-      // Get windows that are minimized or maximized.
+      // Get windows that are minimized or maximized when they shouldn't be.
       var windowsToRestore = windowsToRedraw
         .Where(window => window.HasWindowStyle(WS.WS_MAXIMIZE | WS.WS_MINIMIZE))
         .ToList();
 
-      // Restore maximized/minimized windows. Needed in order to move and resize them.
+      // Restore maximized/minimized windows. Needed to be able to move and resize them.
       foreach (var window in windowsToRestore)
         ShowWindow(window.Hwnd, ShowWindowFlags.RESTORE);
 
@@ -64,7 +63,7 @@ namespace LarsWM.Domain.Containers.CommandHandlers
         }
       }
 
-      containersToRedraw.Clear();
+      _containerService.SplitContainersToRedraw.Clear();
 
       return CommandResponse.Ok;
     }
