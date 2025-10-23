@@ -1,220 +1,389 @@
-# GlazeWM &middot; [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/lars-berger/GlazeWM/pulls)
+<div align="center">
 
-GlazeWM is a tiling window manager for Windows inspired by i3 and Polybar.
+> V3 is finally out - check out the changelog [here](https://github.com/glzr-io/GlazeWM/releases) 🔥
 
-Why use a tiling window manager? A tiling WM lets you easily organize windows and adjust their layout on the fly by using keyboard-driven commands.
+  <br>
+  <img src="./resources/assets/logo.svg" width="230" alt="GlazeWM logo" />
+  <br>
+
+# GlazeWM
+
+**A tiling window manager for Windows inspired by i3wm.**
+
+[![Discord invite][discord-badge]][discord-link]
+[![Downloads][downloads-badge]][downloads-link]
+[![Good first issues][issues-badge]][issues-link]
+
+GlazeWM lets you easily organize windows and adjust their layout on the fly by using keyboard-driven commands.
+
+[Installation](#installation) •
+[Default keybindings](#default-keybindings) •
+[Config documentation](#config-documentation) •
+[FAQ](#faq) •
+[Contributing ↗](https://github.com/glzr-io/glazewm/blob/main/CONTRIBUTING.md)
+
+![Demo video][demo-video]
+
+</div>
+
+### 🌟 Key features
 
 - Simple YAML configuration
 - Multi-monitor support
-- Customizable bar window
-- Handles monitor connections & disconnections
 - Customizable rules for specific windows
+- Easy one-click installation
+- Integration with [Zebar](https://github.com/glzr-io/zebar) as a status bar
 
-![demo](https://user-images.githubusercontent.com/34844898/142960922-fb3abd0d-082c-4f92-8613-865c68006bd8.gif)
+## Installation
 
-Under the hood, GlazeWM adds functionality to the built-in DWM and uses the Windows API via P/Invoke to position windows.
+**The latest version of GlazeWM is downloadable via [releases](https://github.com/glzr-io/GlazeWM/releases).** Zebar can optionally be installed as well via a checkbox during installation.
 
-# Download
+GlazeWM is also available through several package managers:
 
-The latest runnable binary can be downloaded via [releases](https://github.com/lars-berger/GlazeWM/releases). No installation necessary, simply run the executable.
+**Winget**
 
-Alternatively, to build from source, use the .NET CLI command `dotnet publish ./GlazeWM.Bootstrapper/GlazeWM.Bootstrapper.csproj --configuration=Release --runtime=win-x64 --output=. -p:PublishSingleFile=true` and run `GlazeWM.exe` from the compiled output. Other available runtime identifiers can be found [here](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog#windows-rids).
+```sh
+winget install GlazeWM
+```
 
-# Roadmap
+**Chocolatey**
 
-- Improve handling of fullscreen and maximized windows.
-- More bar components.
-- Change the size of sibling windows when a tiling window is resized with the sizing border.
+```sh
+choco install glazewm
+```
 
-# Configuration
+**Scoop**
 
-The configuration file for GlazeWM can be found at `C:\Users\<YOUR_USER>\.glaze-wm\config.yaml`. If this file doesn't exist, it can optionally be generated with some sensible defaults on application launch.
+```sh
+scoop bucket add extras
+scoop install extras/glazewm
+```
 
-## Keybindings
+## Contributing
 
-The available keybindings can be customized via the `keybindings` property in the config file. A keybinding consists of one or more key combinations and one or more commands to run when pressed.
+Help fix something that annoys you, or add a feature you've been wanting for a long time! Contributions are very welcome.
 
-A full list of keys that can be used for keybindings can be found [here](https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.keys?view=windowsdesktop-5.0#fields). Numbers can be used in keybindings with and without a `D` prefix (eg. either `D1` or `1` works).
+Local development and guidelines are available in the [contributing guide](https://github.com/glzr-io/glazewm/blob/main/CONTRIBUTING.md).
 
-It's recommended to use the alt key for keybindings. The windows key is unfortunately a pain to remap, since certain keybindings (eg. `LWin+L`) are reserved by the OS.
+## Default keybindings
+
+On the first launch of GlazeWM, a default configuration can optionally be generated.
+
+Below is a cheat sheet of all available commands and their default keybindings.
+
+![Infographic](/resources/assets/cheatsheet.png)
+
+## Config documentation
+
+The [default config](https://github.com/glzr-io/glazewm/blob/main/resources/assets/sample-config.yaml) file is generated at `%userprofile%\.glzr\glazewm\config.yaml`.
+
+To use a different config file location, you can launch the GlazeWM executable with the CLI argument `--config="..."`, like so:
+
+```sh
+./glazewm.exe start --config="C:\<PATH_TO_CONFIG>\config.yaml"
+```
+
+Or pass a value for the `GLAZEWM_CONFIG_PATH` environment variable:
+
+```sh
+setx GLAZEWM_CONFIG_PATH "C:\<PATH_TO_CONFIG>\config.yaml"
+```
+
+With the benefit of using a custom path being that you can choose a different name for the config file, such as `glazewm.yaml`.
+
+### Config: General
+
+```yaml
+general:
+  # Commands to run when the WM has started (e.g. to run a script or launch
+  # another application).
+  startup_commands: []
+
+  # Commands to run just before the WM is shutdown.
+  shutdown_commands: []
+
+  # Commands to run after the WM config has reloaded.
+  config_reload_commands: []
+
+  # Whether to automatically focus windows underneath the cursor.
+  focus_follows_cursor: false
+
+  # Whether to switch back and forth between the previously focused
+  # workspace when focusing the current workspace.
+  toggle_workspace_on_refocus: false
+
+  cursor_jump:
+    # Whether to automatically move the cursor on the specified trigger.
+    enabled: true
+
+    # Trigger for cursor jump:
+    # - 'monitor_focus': Jump when focus changes between monitors.
+    # - 'window_focus': Jump when focus changes between windows.
+    trigger: "monitor_focus"
+```
+
+### Config: Keybindings
+
+The available keyboard shortcuts can be customized via the `keybindings` option. A keybinding consists of one or more key combinations and one or more commands to run when pressed.
+
+It's recommended to use the alt key for keybindings. The Windows key is unfortunately a pain to remap, since the OS reserves certain keybindings (e.g. `lwin+l`).
 
 ```yaml
 keybindings:
-  # Command to run.
-  - command: "focus workspace 1"
+  # Command(s) to run.
+  - commands: ["focus --workspace 1"]
 
-    # Key combination to trigger the keybinding.
-    binding: "Alt+1"
+    # Key combination(s) to trigger the keybinding.
+    bindings: ["alt+1"]
 
-  # To run multiple commands in a sequence, use the `commands` property (eg. to move a window to a workspace + focus workspace).
-  - commands: ["move to workspace 1", "focus workspace 1"]
-    binding: "Alt+Shift+1"
-
-  - command: "focus left"
-    # To have multiple key combinations that can trigger a command, use the `bindings` property.
-    bindings: ["Alt+H", "Alt+Left"]
+  # Multiple commands can be run in a sequence (e.g. to move a window to a
+  # workspace + focus workspace).
+  - commands: ["move --workspace 1", "focus --workspace 1"]
+    bindings: ["alt+shift+1"]
 ```
 
-### Default keybindings
+**Full list of keys that can be used for keybindings:**
 
-Keybindings with Alt pressed:
+<details>
+<summary>Keys list</summary>
 
-![Alt key pressed - with keybindings](https://user-images.githubusercontent.com/34844898/142961268-6892c447-8cfb-4774-916b-1859e168f383.png)
+| Key                   | Description                                                        |
+| --------------------- | ------------------------------------------------------------------ |
+| `a` - `z`             | Alphabetical letter keys                                           |
+| `0` - `9`             | Number keys                                                        |
+| `numpad0` - `numpad9` | Numerical keypad keys                                              |
+| `f1` - `f24`          | Function keys                                                      |
+| `shift`               | Either left or right SHIFT key                                     |
+| `lshift`              | The left SHIFT key                                                 |
+| `rshift`              | The right SHIFT key                                                |
+| `control`             | Either left or right CTRL key                                      |
+| `lctrl`               | The left CTRL key                                                  |
+| `rctrl`               | The right CTRL key                                                 |
+| `alt`                 | Either left or right ALT key                                       |
+| `lalt`                | The left ALT key                                                   |
+| `ralt`                | The right ALT key                                                  |
+| `lwin`                | The left ⊞ Windows logo key                                        |
+| `rwin`                | The right ⊞ Windows logo key                                       |
+| `space`               | The spacebar key                                                   |
+| `escape`              | The ESCAPE key                                                     |
+| `back`                | The BACKSPACE key                                                  |
+| `tab`                 | The TAB key                                                        |
+| `enter`               | The ENTER key                                                      |
+| `left`                | The ← arrow key                                                    |
+| `right`               | The → arrow key                                                    |
+| `up`                  | The ↑ arrow key                                                    |
+| `down`                | The ↓ arrow key                                                    |
+| `num_lock`            | The NUM LOCK key                                                   |
+| `scroll_lock`         | The SCROLL LOCK key                                                |
+| `caps_lock`           | The CAPS LOCK key                                                  |
+| `page_up`             | The PAGE UP key                                                    |
+| `page_down`           | The PAGE DOWN key                                                  |
+| `insert`              | The INSERT key                                                     |
+| `delete`              | The DELETE key                                                     |
+| `end`                 | The END key                                                        |
+| `home`                | The HOME key                                                       |
+| `print_screen`        | The PRINT SCREEN key                                               |
+| `multiply`            | The `*` key (only on numpad)                                       |
+| `add`                 | The `+` key (only on numpad)                                       |
+| `subtract`            | The `-` key (only on numpad)                                       |
+| `decimal`             | The DEL key (only on numpad)                                       |
+| `divide`              | The `/` key (only on numpad)                                       |
+| `volume_up`           | The volume up key                                                  |
+| `volume_down`         | The volume down key                                                |
+| `volume_mute`         | The volume mute key                                                |
+| `media_next_track`    | The media next track key                                           |
+| `media_prev_track`    | The media prev track key                                           |
+| `media_stop`          | The media stop key                                                 |
+| `media_play_pause`    | The media play/pause key                                           |
+| `oem_semicolon`       | The `;`/`:` key on a US standard keyboard (varies by keyboard)     |
+| `oem_question`        | The `/`/`?` key on a US standard keyboard (varies by keyboard)     |
+| `oem_tilde`           | The `` ` ``/`~` key on a US standard keyboard (varies by keyboard) |
+| `oem_open_brackets`   | The `[`/`{` key on a US standard keyboard (varies by keyboard)     |
+| `oem_pipe`            | The `\`/`\|` key on a US standard keyboard (varies by keyboard)    |
+| `oem_close_brackets`  | The `]`/`}` key on a US standard keyboard (varies by keyboard)     |
+| `oem_quotes`          | The `'`/`"` key on a US standard keyboard (varies by keyboard)     |
+| `oem_plus`            | The `=`/`+` key on a US standard keyboard (varies by keyboard)     |
+| `oem_comma`           | The `,`/`<` key on a US standard keyboard (varies by keyboard)     |
+| `oem_minus`           | The `-`/`_` key on a US standard keyboard (varies by keyboard)     |
+| `oem_period`          | The `.`/`>` key on a US standard keyboard (varies by keyboard)     |
 
-Keybindings with Alt+Shift pressed:
+</details>
 
-![Alt+shift key pressed - with keybindings](https://user-images.githubusercontent.com/34844898/142961277-04627f5d-b257-4c66-a9b3-fde3f485eded.png)
+If a key is not in the list above, it is likely still supported if you use its character in a keybinding (e.g. `alt+å` for the Norwegian Å character).
 
-Apart from the `Alt+Shift+E` binding for exiting GlazeWM, it's also possibly to safely exit via the system tray icon.
+> German and US international keyboards treat the right-side alt key differently. For these keyboard layouts, use `ralt+ctrl` instead of `ralt` to bind the right-side alt key.
 
-## Gap configuration
+### Config: Gaps
 
 The gaps between windows can be changed via the `gaps` property in the config file. Inner and outer gaps are set separately.
 
 ```yaml
 gaps:
   # Gap between adjacent windows.
-  inner_gap: 20
+  inner_gap: "20px"
 
   # Gap between windows and the screen edge.
-  outer_gap: 20
+  outer_gap:
+    top: "20px"
+    right: "20px"
+    bottom: "20px"
+    left: "20px"
 ```
 
-## Workspaces configuration
+### Config: Workspaces
 
 Workspaces need to be predefined via the `workspaces` property in the config file. A workspace is automatically assigned to each monitor on startup.
 
 ```yaml
 workspaces:
-  # Uniquely identifies the workspace and is used as the label for the workspace in the bar if `display_name` is not provided.
-  - name: 1
+  # This is the unique ID for the workspace. It's used in keybinding
+  # commands, and is also the label shown in 3rd-party apps (e.g. Zebar) if
+  # `display_name` is not provided.
+  - name: "1"
 
-    # Optional override for the workspace label in the bar. Does not need to be unique.
+    # Optional override for the workspace label used in 3rd-party apps.
+    # Does not need to be unique.
     display_name: "Work"
+
+    # Optionally force the workspace on a specific monitor if it exists.
+    # 0 is your leftmost screen, 1 is the next one to the right, and so on.
+    bind_to_monitor: 0
+
+    # Optionally prevent workspace from being deactivated when empty.
+    keep_alive: false
 ```
 
-## Bar configuration
+### Config: Window rules
 
-The appearance of the bar can be changed via the `bar` property in the config file.
+Commands can be run when a window is first launched. This is useful for adding window-specific behaviors like always starting a window as fullscreen or assigning to a specific workspace.
 
-```yaml
-bar:
-  # Height of the bar in pixels.
-  height: 30
-
-  # The position of the bar on the screen. Can be either "top" or "bottom".
-  position: "top"
-
-  # Opacity value between 0.0 and 1.0.
-  opacity: 1.0
-
-  # Background color of the bar.
-  background: "#101010"
-
-  # Default font color. Can be overriden by setting `foreground` in a component's config.
-  foreground: "white"
-
-  # Default font family. Can be overriden by setting `font_family` in a component's config.
-  font_family: "Segoe UI"
-
-  # Default font size. Can be overriden by setting `font_size` in a component's config.
-  font_size: "13"
-
-  # Horizontal and vertical borders in pixels. Borders are inside the dimensions of the bar and do
-  # not affect bar height. See "Shorthand properties" for more info.
-  border_width: "0"
-
-  # Color of the border.
-  border_color: "blue"
-
-  # Horizontal and vertical spacing between components within the bar and the edges of the bar. See
-  # "Shorthand properties" for more info.
-  padding: "1 6 1 6"
-
-  # Components to display on the left side of the bar.
-  components_left:
-    - type: "workspaces"
-
-  # Components to display on the right side of the bar.
-  components_right:
-    - type: "clock"
-```
-
-### Bar component configuration
-
-The appearance of bar components can also be customized. The following properties can change the styling of a component, regardless of the component type.
-
-```yaml
-# Type of component to display. Currently only 2 component types exist:  "workspaces" and "clock".
-type: <COMPONENT_TYPE>
-
-# Horizontal and vertical margins. See "Shorthand properties" for more info.
-margin: "0 10 0 0"
-
-# Horizontal and vertical padding. See "Shorthand properties" for more info.
-padding: "0"
-
-# Opacity value between 0.0 and 1.0.
-opacity: 1.0
-
-# Background color of the component.
-background: "#101010"
-
-# Font color used within the component.
-foreground: "white"
-
-# Font family used within the component.
-font_family: "Segoe UI"
-
-# Font family used within the component.
-font_size: "13"
-
-# Horizontal and vertical borders in pixels. Borders are inside the dimensions of the component.
-# See "Shorthand properties" for more info.
-border_width: "0"
-
-# Color of the border.
-border_color: "blue"
-```
-
-### Shorthand properties
-
-Properties related to the edges of the bar or a component, like `padding`, `margin`, and `border_width`, use a 1-to-4 value syntax. This is the same convention that's common in CSS.
-
-Using the example of padding:
-
-- When one value is specified, it applies the same padding to all four sides.
-- When two values are specified, the first padding applies to the top and bottom, the second to the left and right.
-- When three values are specified, the first padding applies to the top, the second to the right and left, the third to the bottom.
-- When four values are specified, the paddings apply to the top, right, bottom, and left in that order (clockwise).
-
-## Window rules
-
-Commands can be run when a window is initally launched. This can be used to assign an app to a specific workspace or to always start an app in floating mode.
-
-Multiple matching criteria can be used together to target a window more precisely. Regex syntax can also be used by wrapping the pattern with `/` (eg. `/notepad|chrome/`)
+Windows can be targeted by their process, class, and title. Multiple matching criteria can be used together to target a window more precisely.
 
 ```yaml
 window_rules:
-  # Command to run. Use `commands` to specify an array of commands to run in sequence.
-  - command: "move to workspace 2"
+  - commands: ["move --workspace 1"]
+    match:
+      # Move browsers to workspace 1.
+      - window_process: { regex: "msedge|brave|chrome" }
 
-    # Process name to match exactly.
-    match_process_name: "chrome"
+  - commands: ["ignore"]
+    match:
+      # Ignores any Zebar windows.
+      - window_process: { equals: "zebar" }
 
-    # Window title to match exactly.
-    match_title: "/.*/"
-
-    # Class name to match exactly.
-    match_class_name: "Chrome_WidgetWin_1"
-
-  # To prevent the WM from managing an app, use the "ignore" command.
-  - command: "ignore"
-    match_process_name: "notepad"
+      # Ignores picture-in-picture windows for browsers.
+      # Note that *both* the title and class must match for the rule to run.
+      - window_title: { regex: "[Pp]icture.in.[Pp]icture" }
+        window_class: { regex: "Chrome_WidgetWin_1|MozillaDialogClass" }
 ```
 
-# Known issues
+### Config: Window effects
 
-## Blurry buttons in bar window
+Visual effects can be applied to windows via the `window_effects` option. Currently, colored borders are the only effect available with more to come in the future.
 
-An app called "Sonic Studio", which is installed by default on ASUS ROG machines can cause rendering issues with WPF apps. This can be resolved by disabling `NahimicService` in Windows Services Manager.
+> Note: Window effects are exclusive to Windows 11.
+
+```yaml
+window_effects:
+  # Visual effects to apply to the focused window.
+  focused_window:
+    # Highlight the window with a colored border.
+    border:
+      enabled: true
+      color: "#0000ff"
+
+  # Visual effects to apply to non-focused windows.
+  other_windows:
+    border:
+      enabled: false
+      color: "#d3d3d3"
+```
+
+### Config: Window behavior
+
+The `window_behavior` config option exists to customize the states that a window can be in (`tiling`, `floating`, `minimized`, and `fullscreen`).
+
+```yaml
+window_behavior:
+  # New windows are created in this state whenever possible.
+  # Allowed values: 'tiling', 'floating'.
+  initial_state: "tiling"
+
+  # Sets the default options for when a new window is created. This also
+  # changes the defaults for when the state change commands, like
+  # `set-floating`, are used without any flags.
+  state_defaults:
+    floating:
+      # Whether to center floating windows by default.
+      centered: true
+
+      # Whether to show floating windows as always on top.
+      shown_on_top: false
+
+    fullscreen:
+      # Maximize the window if possible. If the window doesn't have a
+      # maximize button, then it'll be made fullscreen normally instead.
+      maximized: false
+```
+
+### Config: Binding modes
+
+Binding modes are used to modify keybindings while GlazeWM is running.
+
+A binding mode can be enabled with `wm-enable-binding-mode --name <NAME>` and disabled with `wm-disable-binding-mode --name <NAME>`.
+
+```yaml
+binding_modes:
+  # When enabled, the focused window can be resized via arrow keys or HJKL.
+  - name: "resize"
+    keybindings:
+      - commands: ["resize --width -2%"]
+        bindings: ["h", "left"]
+      - commands: ["resize --width +2%"]
+        bindings: ["l", "right"]
+      - commands: ["resize --height +2%"]
+        bindings: ["k", "up"]
+      - commands: ["resize --height -2%"]
+        bindings: ["j", "down"]
+      # Press enter/escape to return to default keybindings.
+      - commands: ["wm-disable-binding-mode --name resize"]
+        bindings: ["escape", "enter"]
+```
+
+## FAQ
+
+**Q: How do I run GlazeWM on startup?**
+
+Create a shortcut for the executable by right-clicking on the GlazeWM executable -> `Create shortcut`. Put the shortcut in your startup folder, which you can get to by entering `shell:startup` in the top bar in File Explorer.
+
+**Q: How can I create `<insert layout>`?**
+
+You can create custom layouts by changing the tiling direction with `alt+v`. This changes where the next window is placed _in relation to the current window_. If the current window's direction is horizontal, the new window will be placed to the right of it. If it is vertical, it will be placed below it. This also applies when moving windows; the tiling direction of the stationary window will affect where the moved window will be placed.
+
+Community-made scripts like [Dutch-Raptor/GAT-GWM](https://github.com/Dutch-Raptor/GAT-GWM) and [burgr033/GlazeWM-autotiling-python](https://github.com/burgr033/GlazeWM-autotiling-python) can be used to automatically change the tiling direction. Native support for automatic layouts isn't _currently_ supported.
+
+**Q: How do I create a rule for `<insert application>`?**
+
+To match a specific application, you need a command to execute and either the window's process name, title, or class name. For example, if you use Flow-Launcher and want to make the settings window float, you can do the following:
+
+```yaml
+window_rules:
+  - commands: ["set-floating"]
+    match:
+      - window_process: { equals: "Flow.Launcher" }
+        window_title: { equals: "Settings" }
+```
+
+Programs like Winlister or AutoHotkey's Window Spy can be useful for getting info about a window.
+
+**Q: How can I ignore GlazeWM's keybindings when `<insert application>` is focused?**
+
+This isn't currently supported, however, the keybinding `alt+shift+p` in the default config is used to disable all other keybindings until `alt+shift+p` is pressed again.
+
+[discord-badge]: https://img.shields.io/discord/1041662798196908052.svg?logo=discord&colorB=7289DA
+[discord-link]: https://discord.gg/ud6z3qjRvM
+[downloads-badge]: https://img.shields.io/github/downloads/glzr-io/glazewm/total?logo=github&logoColor=white
+[downloads-link]: https://github.com/glzr-io/glazewm/releases
+[issues-badge]: https://img.shields.io/badge/good_first_issues-7057ff
+[issues-link]: https://github.com/orgs/glzr-io/projects/4/views/1?sliceBy%5Bvalue%5D=good+first+issue
+[demo-video]: resources/assets/demo.webp
